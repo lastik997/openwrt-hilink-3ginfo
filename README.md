@@ -28,12 +28,12 @@ Huawei E3372 в режиме HiLink выступает как USB-сетевая
 
 ## Установка
 
+Команды выполняются **на роутере** (по SSH), а не на компьютере:
+
 ```sh
 wget https://raw.githubusercontent.com/lastik997/openwrt-hilink-3ginfo/main/setup-hilink-3ginfo.sh
 sh setup-hilink-3ginfo.sh
 ```
-
-(URL поправь под фактическое имя своего репозитория.)
 
 После установки открой в LuCI **Modem → 3ginfo-lite** и обнови вкладку Modem(s) (Ctrl+F5) — данные должны подтянуться.
 
