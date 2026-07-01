@@ -7,9 +7,10 @@
 # Что делает:
 #   - ставит USB/сетевые драйверы для HiLink;
 #   - ставит GNU wget (ssl) — обязателен для чтения API модема панелью;
-#   - подключает apk-репозиторий 4IceG и ставит luci-app-3ginfo-lite + ru-локаль;
+#   - подключает apk-репозиторий 4IceG и ставит luci-app-3ginfo-lite;
+#   - предлагает (y/n) установить русскую локаль панели;
 #   - прописывает адрес модема 192.168.8.1 в конфиг 3ginfo;
-#   - (опционально, с подтверждением) создаёт interface LTE (dhcp),
+#   - (опционально, с подтверждением) создаёт interface LTE_Huawei_3372 (dhcp),
 #     добавляет его в firewall-зону wan и привязывает к панели;
 #   - (опционально, с подтверждением) перезагружает роутер.
 #
@@ -19,6 +20,7 @@
 # Запуск:  sh setup-hilink-3ginfo.sh
 #
 
+IFACE="LTE_Huawei_3372"     # имя сетевого интерфейса модема
 REPO_URL="https://github.com/4IceG/Modem-extras-apk/raw/refs/heads/main/myapk/packages.adb"
 KEY_URL="https://github.com/4IceG/Modem-extras-apk/raw/refs/heads/main/myapk/IceG-apkpub.pem"
 KEY_DST="/etc/apk/keys/IceG-apkpub.pem"
@@ -91,9 +93,25 @@ wget -q -O "$KEY_DST" "$KEY_URL" || die "не удалось скачать кл
 echo "Ключ сохранён: $KEY_DST"
 apk update || die "apk update с новым репозиторием не прошёл (проверь ключ/сеть)"
 
-# --- 5. Установка панели и русской локали ----------------------------------
-say "Шаг 5/5: установка luci-app-3ginfo-lite + русская локаль"
-apk add luci-app-3ginfo-lite luci-i18n-3ginfo-lite-ru || die "не удалось поставить панель"
+# --- 5. Установка панели ----------------------------------------------------
+say "Шаг 5/5: установка luci-app-3ginfo-lite"
+apk add luci-app-3ginfo-lite || die "не удалось поставить панель"
+
+# Русская локаль панели — по желанию.
+printf "Установить русский язык для панели 4IceG? [y/N]: "
+read ru_locale
+case "$ru_locale" in
+  y|Y|yes|YES)
+    if apk add luci-i18n-3ginfo-lite-ru; then
+      echo "Русская локаль установлена."
+    else
+      echo "Не удалось поставить локаль (не критично, интерфейс останется на английском)."
+    fi
+    ;;
+  *)
+    echo "Русская локаль пропущена — интерфейс панели останется на английском."
+    ;;
+esac
 
 # Адрес модема для HiLink всегда 192.168.8.1 — прописываем сразу, безусловно.
 # При желании меняется руками в LuCI: Modem -> 3ginfo-lite -> "Конфигурация".
@@ -105,10 +123,10 @@ fi
 
 # --- (Опционально) Автонастройка интерфейса модема + firewall + 3ginfo ------
 # Находим сетевой интерфейс модема по USB Vendor ID Huawei (12d1),
-# создаём interface LTE (proto dhcp), кидаем в firewall-зону wan,
-# прописываем модем в конфиг 3ginfo. Модем должен быть воткнут СЕЙЧАС.
+# создаём interface $IFACE (proto dhcp), кидаем в firewall-зону wan,
+# привязываем к конфигу 3ginfo. Модем должен быть воткнут СЕЙЧАС.
 say "Доп. шаг: автонастройка интерфейса модема (опционально)"
-printf "Настроить интерфейс модема автоматически (LTE/dhcp + зона wan + 3ginfo)? [y/N]: "
+printf "Настроить интерфейс модема автоматически (%s / dhcp + зона wan + 3ginfo)? [y/N]: " "$IFACE"
 read setup_if
 case "$setup_if" in
   y|Y|yes|YES)
@@ -134,40 +152,40 @@ case "$setup_if" in
     else
       echo "Найден интерфейс модема: $MIFACE"
 
-      # 2. interface LTE (proto dhcp)
-      if uci -q get network.LTE >/dev/null; then
-        echo "network.LTE уже существует — обновляю device на $MIFACE."
-        uci set network.LTE.device="$MIFACE"
+      # 2. interface $IFACE (proto dhcp)
+      if uci -q get "network.${IFACE}" >/dev/null; then
+        echo "network.${IFACE} уже существует — обновляю device на $MIFACE."
+        uci set "network.${IFACE}.device=$MIFACE"
       else
-        uci set network.LTE=interface
-        uci set network.LTE.proto='dhcp'
-        uci set network.LTE.device="$MIFACE"
+        uci set "network.${IFACE}=interface"
+        uci set "network.${IFACE}.proto=dhcp"
+        uci set "network.${IFACE}.device=$MIFACE"
       fi
       uci commit network
 
-      # 3. firewall: добавить сеть LTE в зону wan (без дублей)
+      # 3. firewall: добавить сеть $IFACE в зону wan (без дублей)
       ZONE=$(uci show firewall 2>/dev/null | sed -n "s/^firewall\.\(@zone\[[0-9]*\]\)\.name='wan'.*/\1/p" | head -1)
       if [ -z "$ZONE" ]; then
-        echo "ВНИМАНИЕ: firewall-зона wan не найдена — добавь сеть LTE в зону wan вручную."
-      elif uci -q get "firewall.${ZONE}.network" | grep -qw LTE; then
-        echo "Сеть LTE уже в зоне wan."
+        echo "ВНИМАНИЕ: firewall-зона wan не найдена — добавь сеть ${IFACE} в зону wan вручную."
+      elif uci -q get "firewall.${ZONE}.network" | grep -qw "$IFACE"; then
+        echo "Сеть ${IFACE} уже в зоне wan."
       else
-        uci add_list "firewall.${ZONE}.network=LTE"
+        uci add_list "firewall.${ZONE}.network=${IFACE}"
         uci commit firewall
-        echo "Сеть LTE добавлена в firewall-зону wan (${ZONE})."
+        echo "Сеть ${IFACE} добавлена в firewall-зону wan (${ZONE})."
       fi
 
-      # 4. конфиг 3ginfo: привязать интерфейс LTE (адрес модема уже выставлен выше)
+      # 4. конфиг 3ginfo: привязать интерфейс (адрес модема уже выставлен выше)
       if [ -f /etc/config/3ginfo ]; then
-        uci set "3ginfo.@3ginfo[0].network=LTE"
+        uci set "3ginfo.@3ginfo[0].network=${IFACE}"
         uci commit 3ginfo
-        echo "3ginfo: интерфейс LTE привязан"
+        echo "3ginfo: интерфейс ${IFACE} привязан"
       fi
 
       # 5. применить
       /etc/init.d/network restart
       /etc/init.d/firewall restart
-      echo "Сеть и firewall перезапущены. Интерфейс LTE поднят на $MIFACE."
+      echo "Сеть и firewall перезапущены. Интерфейс ${IFACE} поднят на $MIFACE."
     fi
     ;;
   *)
@@ -176,7 +194,7 @@ case "$setup_if" in
 esac
 
 # --- Готово ----------------------------------------------------------------
-cat <<'EOF'
+cat <<EOF
 
 ============================================================
 Установка завершена.
@@ -189,13 +207,13 @@ cat <<'EOF'
         - IP-адрес / Порт связи: 192.168.8.1
      Save & Apply.
 
-Если автонастройка ОТРАБОТАЛА — интерфейс LTE, зона wan и конфиг 3ginfo
+Если автонастройка ОТРАБОТАЛА — интерфейс ${IFACE}, зона wan и конфиг 3ginfo
 уже прописаны. Останется только обновить вкладку Modem(s) (Ctrl+F5).
 
 Проверки в консоли:
-  wget --version | head -1        # должно быть "GNU Wget ..."
-  ip route                        # default через 192.168.8.1 dev <iface модема>
-  ifstatus LTE | grep l3_device   # должен показать интерфейс модема
+  wget --version | head -1                   # должно быть "GNU Wget ..."
+  ip route                                   # default через 192.168.8.1 dev <iface модема>
+  ifstatus ${IFACE} | grep l3_device         # должен показать интерфейс модема
 
 Известные ограничения HiLink (не лечатся настройкой):
   - блокировка бэндов (modemband) и SMS из LuCI не работают — нет AT-порта;
