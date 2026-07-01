@@ -1,5 +1,7 @@
 # openwrt-hilink-3ginfo
 
+**Русский** · [English](README.en.md) · [中文](README.zh-CN.md)
+
 Установочный скрипт для мониторинга USB-модема **Huawei E3372 (HiLink)** на **OpenWrt 25 (apk)** через панель [luci-app-3ginfo-lite](https://github.com/4IceG/luci-app-3ginfo-lite).
 
 Один прогон на чистой системе: ставит драйверы, зависимости, подключает репозиторий 4IceG, устанавливает панель с русской локалью и (по желанию) сам создаёт сетевой интерфейс модема.
