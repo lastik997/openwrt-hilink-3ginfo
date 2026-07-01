@@ -1,0 +1,2 @@
+setup-hilink-3ginfo.sh -text
+uninstall-hilink-3ginfo.sh -text
