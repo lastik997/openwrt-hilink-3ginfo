@@ -1,4 +1,4 @@
-# openwrt-hilink-3ginfo
+# openwrt-huawei-e3372
 
 [Русский](README.md) · [English](README.en.md) · **中文**
 
@@ -33,8 +33,8 @@
 命令需在**路由器上**（通过 SSH）执行，而不是在你的电脑上：
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-hilink-3ginfo/main/setup-hilink-3ginfo.sh
-sh setup-hilink-3ginfo.sh
+wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
+sh setup-e3372-3ginfo.sh
 ```
 
 安装完成后，在 LuCI 中打开 **Modem → 3ginfo-lite** 并刷新 Modem(s) 标签页（Ctrl+F5）——数据应会显示出来。
@@ -44,8 +44,8 @@ sh setup-hilink-3ginfo.sh
 要移除脚本安装的所有内容，请使用卸载脚本。在路由器上：
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-hilink-3ginfo/main/uninstall-hilink-3ginfo.sh
-sh uninstall-hilink-3ginfo.sh
+wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
+sh uninstall-e3372-3ginfo.sh
 ```
 
 它会移除面板、4IceG 软件源及其密钥、`LTE_Huawei_3372` 接口及其防火墙规则，以及 3ginfo 配置，然后询问是否重启。

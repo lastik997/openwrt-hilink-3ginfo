@@ -1,2 +1,2 @@
-setup-hilink-3ginfo.sh -text
-uninstall-hilink-3ginfo.sh -text
+setup-e3372-3ginfo.sh -text
+uninstall-e3372-3ginfo.sh -text

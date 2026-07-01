@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# uninstall-hilink-3ginfo.sh
-# Удаление того, что поставил setup-hilink-3ginfo.sh, на OpenWrt 25 (apk).
+# uninstall-e3372-3ginfo.sh
+# Удаление того, что поставил setup-e3372-3ginfo.sh, на OpenWrt 25 (apk).
 #
 # УДАЛЯЕТ (то, что мы принесли специально под задачу):
 #   - панель luci-app-3ginfo-lite и её русскую локаль;
@@ -15,7 +15,7 @@
 #     kmod-usb-net-cdc-ether, kmod-usb-net-rndis, usbutils, usb-modeswitch;
 #   - wget-ssl и sms-tool (могли пригодиться и для другого).
 #
-# Запуск:  sh uninstall-hilink-3ginfo.sh
+# Запуск:  sh uninstall-e3372-3ginfo.sh
 #
 
 IFACE="LTE_Huawei_3372"
@@ -30,7 +30,7 @@ command -v apk >/dev/null 2>&1 || { echo "apk не найден — это не 
 # --- Предупреждение и подтверждение ----------------------------------------
 cat <<EOF
 ============================================================
-Удаление openwrt-hilink-3ginfo.
+Удаление openwrt-huawei-e3372.
 
 БУДЕТ УДАЛЕНО:
   - панель luci-app-3ginfo-lite (+ русская локаль, если стояла)

@@ -1,4 +1,4 @@
-# openwrt-hilink-3ginfo
+# openwrt-huawei-e3372
 
 **Русский** · [English](README.en.md) · [中文](README.zh-CN.md)
 
@@ -33,8 +33,8 @@ Huawei E3372 в режиме HiLink выступает как USB-сетевая
 Команды выполняются **на роутере** (по SSH), а не на компьютере:
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-hilink-3ginfo/main/setup-hilink-3ginfo.sh
-sh setup-hilink-3ginfo.sh
+wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
+sh setup-e3372-3ginfo.sh
 ```
 
 После установки открой в LuCI **Modem → 3ginfo-lite** и обнови вкладку Modem(s) (Ctrl+F5) — данные должны подтянуться.
@@ -44,8 +44,8 @@ sh setup-hilink-3ginfo.sh
 Убрать всё, что поставил скрипт, можно аптинсталлером. На роутере:
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-hilink-3ginfo/main/uninstall-hilink-3ginfo.sh
-sh uninstall-hilink-3ginfo.sh
+wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
+sh uninstall-e3372-3ginfo.sh
 ```
 
 Он удалит панель, репозиторий 4IceG с ключом, интерфейс `LTE_Huawei_3372` с правилом firewall и конфиг 3ginfo, затем предложит перезагрузку.

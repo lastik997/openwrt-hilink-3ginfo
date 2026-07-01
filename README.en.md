@@ -1,4 +1,4 @@
-# openwrt-hilink-3ginfo
+# openwrt-huawei-e3372
 
 [Русский](README.md) · **English** · [中文](README.zh-CN.md)
 
@@ -33,8 +33,8 @@ Both optional steps ask for confirmation — network/firewall and reboot are nev
 Run the commands **on the router** (over SSH), not on your computer:
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-hilink-3ginfo/main/setup-hilink-3ginfo.sh
-sh setup-hilink-3ginfo.sh
+wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
+sh setup-e3372-3ginfo.sh
 ```
 
 After installation open **Modem → 3ginfo-lite** in LuCI and refresh the Modem(s) tab (Ctrl+F5) — the data should populate.
@@ -44,8 +44,8 @@ After installation open **Modem → 3ginfo-lite** in LuCI and refresh the Modem(
 To remove everything the script installed, use the uninstaller. On the router:
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-hilink-3ginfo/main/uninstall-hilink-3ginfo.sh
-sh uninstall-hilink-3ginfo.sh
+wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
+sh uninstall-e3372-3ginfo.sh
 ```
 
 It removes the panel, the 4IceG repository and its key, the `LTE_Huawei_3372` interface with its firewall rule, and the 3ginfo config, then offers a reboot.
