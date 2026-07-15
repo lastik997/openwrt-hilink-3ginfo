@@ -33,7 +33,7 @@
 命令需在**路由器上**（通过 SSH）执行，而不是在你的电脑上：
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
+wget -O setup-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
 sh setup-e3372-3ginfo.sh
 ```
 
@@ -44,7 +44,7 @@ sh setup-e3372-3ginfo.sh
 要移除脚本安装的所有内容，请使用卸载脚本。在路由器上：
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
+wget -O uninstall-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
 sh uninstall-e3372-3ginfo.sh
 ```
 
@@ -80,6 +80,21 @@ uci commit firewall
 - **无法进行频段锁定（modemband）和从 LuCI 收发短信。** HiLink 没有串行 AT 端口，而这两项功能都依赖 AT 指令。短信仍可通过调制解调器的 Web 界面 `http://192.168.8.1` 使用。
 - **TAC / 频段 / EARFCN 字段可能为空**——E3372 的 API 不提供这些数据。
 - **“运营商网络注册问题”提示为误报。** 面板尝试用 AT 指令（`AT+CREG?`）读取注册状态，而 HiLink 没有该端口，字段保持为空——因此出现该警告。它不影响实际运行：只要能识别运营商且有流量，注册就是正常的。点击 Dismiss 即可。
+
+## 常见问题与解决
+
+- **面板未能安装，`apk update` 报错 `error 8` / `unexpected end of file` / `UNTRUSTED signature`**——几乎都是路由器上的 **HTTP 代理**（Clash / ssclash，监听 `127.0.0.1:7890`）破坏了 GitHub 的重定向（`HTTP error 400`）。解决方法：
+  ```sh
+  /etc/init.d/clash stop
+  sh setup-e3372-3ginfo.sh
+  /etc/init.d/clash start
+  ```
+  如果残留的软件源行导致 `apk update` 失败，请手动移除：
+  ```sh
+  sed -i '\#Modem-extras-apk#d' /etc/apk/repositories.d/customfeeds.list && apk update
+  ```
+  （从本版本起脚本会自动回滚该行，但旧的安装可能仍残留。）
+- **`wget` 把文件保存成了 `index.html`**——在代理后面，busybox 的 `wget` 会丢失 URL 中的文件名。请使用显式文件名下载：`wget -O <名称> <URL>`。
 
 ## 故障排查
 

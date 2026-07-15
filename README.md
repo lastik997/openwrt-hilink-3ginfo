@@ -33,7 +33,7 @@ Huawei E3372 в режиме HiLink выступает как USB-сетевая
 Команды выполняются **на роутере** (по SSH), а не на компьютере:
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
+wget -O setup-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
 sh setup-e3372-3ginfo.sh
 ```
 
@@ -44,7 +44,7 @@ sh setup-e3372-3ginfo.sh
 Убрать всё, что поставил скрипт, можно аптинсталлером. На роутере:
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
+wget -O uninstall-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
 sh uninstall-e3372-3ginfo.sh
 ```
 
@@ -80,6 +80,21 @@ uci commit firewall
 - **Блокировка бэндов (modemband) и SMS из LuCI не работают.** У HiLink нет последовательного AT-порта, а обе функции работают через AT-команды. SMS остаются доступны через веб-морду модема на `http://192.168.8.1`.
 - **Поля TAC / band / EARFCN могут быть пустыми** — эти данные API конкретно E3372 не отдаёт.
 - **Плашка «Проблема с регистрацией в сети оператора» — ложная.** Панель пытается прочитать статус регистрации AT-командой (`AT+CREG?`), которой у HiLink нет, поле остаётся пустым — отсюда предупреждение. На реальную работу не влияет: если оператор определён и идёт трафик, регистрация в порядке. Жми Dismiss.
+
+## Болячки и как лечить
+
+- **Панель не установилась, `apk update` ругается `error 8` / `unexpected end of file` / `UNTRUSTED signature`** — почти всегда виноват **HTTP-прокси на роутере** (Clash / ssclash на `127.0.0.1:7890`): он ломает редиректы GitHub (`HTTP error 400`). Лечение:
+  ```sh
+  /etc/init.d/clash stop
+  sh setup-e3372-3ginfo.sh
+  /etc/init.d/clash start
+  ```
+  Если строка фида залипла и ломает `apk update`, убери её вручную:
+  ```sh
+  sed -i '\#Modem-extras-apk#d' /etc/apk/repositories.d/customfeeds.list && apk update
+  ```
+  (Начиная с этой версии скрипт откатывает строку фида сам, но на старых установках она могла остаться.)
+- **`wget` сохранил файл как `index.html`** — за прокси busybox-`wget` теряет имя из URL. Качай с явным именем: `wget -O <имя> <URL>`.
 
 ## Диагностика
 

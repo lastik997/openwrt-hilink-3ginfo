@@ -33,7 +33,7 @@ Both optional steps ask for confirmation — network/firewall and reboot are nev
 Run the commands **on the router** (over SSH), not on your computer:
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
+wget -O setup-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/setup-e3372-3ginfo.sh
 sh setup-e3372-3ginfo.sh
 ```
 
@@ -44,7 +44,7 @@ After installation open **Modem → 3ginfo-lite** in LuCI and refresh the Modem(
 To remove everything the script installed, use the uninstaller. On the router:
 
 ```sh
-wget https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
+wget -O uninstall-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
 sh uninstall-e3372-3ginfo.sh
 ```
 
@@ -80,6 +80,21 @@ These are properties of HiLink mode, not the script — they can't be fixed by c
 - **Band locking (modemband) and SMS from LuCI don't work.** HiLink has no serial AT port, and both features rely on AT commands. SMS remain available through the modem's web UI at `http://192.168.8.1`.
 - **TAC / band / EARFCN fields may be empty** — this specific data isn't exposed by the E3372 API.
 - **The "operator registration problem" banner is a false positive.** The panel tries to read registration status via an AT command (`AT+CREG?`) that HiLink doesn't have, so the field stays empty — hence the warning. It doesn't affect actual operation: if the operator is detected and traffic flows, registration is fine. Just click Dismiss.
+
+## Known issues and fixes
+
+- **The panel didn't install, `apk update` complains `error 8` / `unexpected end of file` / `UNTRUSTED signature`** — this is almost always an **HTTP proxy on the router** (Clash / ssclash on `127.0.0.1:7890`) breaking GitHub redirects (`HTTP error 400`). Fix:
+  ```sh
+  /etc/init.d/clash stop
+  sh setup-e3372-3ginfo.sh
+  /etc/init.d/clash start
+  ```
+  If a stale feed line is left behind and breaks `apk update`, remove it manually:
+  ```sh
+  sed -i '\#Modem-extras-apk#d' /etc/apk/repositories.d/customfeeds.list && apk update
+  ```
+  (From this version on the script rolls the feed line back itself, but older installs may still have it.)
+- **`wget` saved the file as `index.html`** — behind a proxy busybox `wget` loses the name from the URL. Download with an explicit name: `wget -O <name> <URL>`.
 
 ## Troubleshooting
 
