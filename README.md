@@ -37,6 +37,10 @@ wget -O setup-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-
 sh setup-e3372-3ginfo.sh
 ```
 
+Запуск показывает меню — выбери **`1) Установить`**. Пустой ввод (просто Enter),
+`0` или `q` закрывают меню, ничего не устанавливая. Можно и без меню, сразу
+установкой: `sh setup-e3372-3ginfo.sh install`.
+
 После установки открой в LuCI **Modem → 3ginfo-lite** и обнови вкладку Modem(s) (Ctrl+F5) — данные должны подтянуться.
 
 ## Удаление
@@ -47,6 +51,9 @@ sh setup-e3372-3ginfo.sh
 wget -O uninstall-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
 sh uninstall-e3372-3ginfo.sh
 ```
+
+То же удаление доступно из меню установщика (пункт **`2) Удалить`**) или командой
+`sh setup-e3372-3ginfo.sh uninstall` — отдельный файл качать не обязательно.
 
 Он удалит панель, репозиторий 4IceG с ключом, интерфейс `LTE_Huawei_3372` с правилом firewall и конфиг 3ginfo, затем предложит перезагрузку.
 
@@ -86,7 +93,7 @@ uci commit firewall
 - **Панель не установилась, `apk update` ругается `error 8` / `unexpected end of file` / `UNTRUSTED signature`** — почти всегда виноват **HTTP-прокси на роутере** (Clash / ssclash на `127.0.0.1:7890`): он ломает редиректы GitHub (`HTTP error 400`). Лечение:
   ```sh
   /etc/init.d/clash stop
-  sh setup-e3372-3ginfo.sh
+  sh setup-e3372-3ginfo.sh install
   /etc/init.d/clash start
   ```
   Если строка фида залипла и ломает `apk update`, убери её вручную:

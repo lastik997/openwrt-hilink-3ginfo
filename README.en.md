@@ -37,6 +37,10 @@ wget -O setup-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-
 sh setup-e3372-3ginfo.sh
 ```
 
+Running it shows a menu — pick **`1) Install`**. An empty input (just Enter),
+`0` or `q` closes the menu without installing anything. You can also skip the menu
+and install directly: `sh setup-e3372-3ginfo.sh install`.
+
 After installation open **Modem → 3ginfo-lite** in LuCI and refresh the Modem(s) tab (Ctrl+F5) — the data should populate.
 
 ## Uninstall
@@ -47,6 +51,9 @@ To remove everything the script installed, use the uninstaller. On the router:
 wget -O uninstall-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
 sh uninstall-e3372-3ginfo.sh
 ```
+
+The same removal is available from the installer menu (option **`2) Uninstall`**) or
+via `sh setup-e3372-3ginfo.sh uninstall` — no need to download the separate file.
 
 It removes the panel, the 4IceG repository and its key, the `LTE_Huawei_3372` interface with its firewall rule, and the 3ginfo config, then offers a reboot.
 
@@ -86,7 +93,7 @@ These are properties of HiLink mode, not the script — they can't be fixed by c
 - **The panel didn't install, `apk update` complains `error 8` / `unexpected end of file` / `UNTRUSTED signature`** — this is almost always an **HTTP proxy on the router** (Clash / ssclash on `127.0.0.1:7890`) breaking GitHub redirects (`HTTP error 400`). Fix:
   ```sh
   /etc/init.d/clash stop
-  sh setup-e3372-3ginfo.sh
+  sh setup-e3372-3ginfo.sh install
   /etc/init.d/clash start
   ```
   If a stale feed line is left behind and breaks `apk update`, remove it manually:

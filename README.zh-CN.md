@@ -37,6 +37,9 @@ wget -O setup-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-
 sh setup-e3372-3ginfo.sh
 ```
 
+运行后会显示菜单——选择 **`1) 安装`**。直接回车（空输入）、`0` 或 `q` 会关闭菜单而不安装任何内容。
+也可以跳过菜单直接安装：`sh setup-e3372-3ginfo.sh install`。
+
 安装完成后，在 LuCI 中打开 **Modem → 3ginfo-lite** 并刷新 Modem(s) 标签页（Ctrl+F5）——数据应会显示出来。
 
 ## 卸载
@@ -47,6 +50,9 @@ sh setup-e3372-3ginfo.sh
 wget -O uninstall-e3372-3ginfo.sh https://raw.githubusercontent.com/lastik9/openwrt-huawei-e3372/main/uninstall-e3372-3ginfo.sh
 sh uninstall-e3372-3ginfo.sh
 ```
+
+同样的卸载也可从安装脚本的菜单中执行（选项 **`2) 卸载`**），或使用
+`sh setup-e3372-3ginfo.sh uninstall` 命令——无需单独下载该文件。
 
 它会移除面板、4IceG 软件源及其密钥、`LTE_Huawei_3372` 接口及其防火墙规则，以及 3ginfo 配置，然后询问是否重启。
 
@@ -86,7 +92,7 @@ uci commit firewall
 - **面板未能安装，`apk update` 报错 `error 8` / `unexpected end of file` / `UNTRUSTED signature`**——几乎都是路由器上的 **HTTP 代理**（Clash / ssclash，监听 `127.0.0.1:7890`）破坏了 GitHub 的重定向（`HTTP error 400`）。解决方法：
   ```sh
   /etc/init.d/clash stop
-  sh setup-e3372-3ginfo.sh
+  sh setup-e3372-3ginfo.sh install
   /etc/init.d/clash start
   ```
   如果残留的软件源行导致 `apk update` 失败，请手动移除：
